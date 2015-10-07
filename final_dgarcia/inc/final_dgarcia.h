@@ -100,7 +100,7 @@ extern void _vStackTop(void);
 void RIT_IRQHandler(void);
 
 /*INTERRUPCION_rti_TIMER*/
-void ISR_RIT(void);
+void Timer_IRQ(void);
 #else
 #endif
 

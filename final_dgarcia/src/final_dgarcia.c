@@ -1,51 +1,47 @@
-#include "final_dgarcia.h"       /* <= own header */
+#include "final_dgarcia.h"
 #include "rti_daniel.h"
-#include "leds_daniel.h"
-//#include "tecla_daniel.h"
-
+#include "led.h"
 #include "adc.h"
 #include "dac.h"
 #include "teclas.h"
-/*==================[macros and definitions]=================================*/
-int input_adc=0,c=0;
-float b=1;
+
+int input_adc=0;
 int salida_dac=0;
-float G=1;
-/*==================[internal data declaration]==============================*/
-void ISR_RIT(void)
+float G=1,b=1;
+
+void Timer_IRQ(void)
 {
-	led_verde_invierte();
-	Chip_RIT_ClearInt(LPC_RITIMER);
-c=ADC_Value();
-	b= (float)G*c;
+
+	b= (float)(  (1+G)*ADC_Value()  );
 	input_adc=(int)b;
 	//if (input_adc >=1023) {input_adc=1023; salida_dac=1023;}
 	DAC_Value(input_adc);
+
+	Led_invierte(LED_G);
+	Borra_interrupcion_timer();
 }
+
 
 int main(void)
 {
-int tecla_numero=0;
-//char i=0;
-ADC_Init();
-DAC_Init();
-InicializarTeclas();
+	Puerto_inicia();
+	Led_inicia();
+    ADC_Init();
+    DAC_Init();
+    InicializarTeclas();
+    timer_interrupcion(100);
 
-inicia_led();
-timer_interrupcion(100);
+    int tecla_numero=0;
 
 while(1){
 
-//tecla_numero= kbhit();
 	tecla_numero=EscanearTeclado();
 
-//if(tecla_numero>=1)
+	switch(tecla_numero){
 
-	switch(tecla_numero ){
-
-	case 1:	G+=0.1;led_on();
+	case 1:	G+=0.1;Led_alto(LED_3);
 		break;
-	case 2:	G-=0.1;led_off();
+	case 2:	G-=0.1;Led_bajo(LED_3);
 		break;
 	case 3: G=0;
 		break;
@@ -56,11 +52,7 @@ while(1){
 
 	}
 
-
-
 }
 return 0;
 }
 
-
-/*==================[end of file]============================================*/
