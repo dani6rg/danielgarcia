@@ -31,9 +31,9 @@
  *
  */
 
-/** \brief Blinking Bare Metal example source file
+/** \brief Blinking Bare Metal driver led
  **
- ** This is a mini example of the CIAA Firmware.
+ **
  **
  **/
 
@@ -42,7 +42,7 @@
 
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Baremetal Bare Metal example source file
+/** \addtogroup Baremetal Bare Metal LED Driver
  ** @{ */
 
 /*
@@ -58,9 +58,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "leds_daniel.h"       /* <= own header */
-
-
 
 #ifndef CPU
 #error CPU shall be defined
@@ -70,53 +67,33 @@
 #elif (mk60fx512vlq15 == CPU)
 #else
 #endif
-
+#include "adc.h"
+ADC_CLOCK_SETUP_T adcsetup;
+void ADC_Init() {
+	Chip_SCU_ADC_Channel_Config(0,ADC_CH1);
+	Chip_ADC_Init(LPC_ADC0, &adcsetup);
+	Chip_ADC_EnableChannel(LPC_ADC0, ADC_CH1, ENABLE);
+}
+int ADC_Value() {
+	ADC_Start();
+	return ADC_GetValue();
+}
+int ADC_GetValue() {
+	uint16_t value;
+	while(Chip_ADC_ReadStatus(LPC_ADC0,ADC_CH1,ADC_DR_DONE_STAT) != SET);
+	Chip_ADC_ReadValue(LPC_ADC0,ADC_CH1,&value);
+	return value;
+}
+void ADC_Start() {
+	Chip_ADC_SetStartMode(LPC_ADC0, ADC_START_NOW,ADC_TRIGGERMODE_RISING);
+}
+void ADC_Interrup() {
+	Chip_ADC_Int_SetChannelCmd(LPC_ADC0,ADC_CH1, ENABLE);
+	NVIC_EnableIRQ(17);
+}
 
 /*==================[macros and definitions]=================================*/
 
-void inicia_led(void)
-{
-	//Led R
-	Chip_SCU_PinMux(2, 0, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1 , 1);
-
-	//Led G
-	Chip_SCU_PinMux(2, 1, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<1 , 1);
-
-	//Led B
-	Chip_SCU_PinMux(2, 2, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<2 , 1);
-
-	//Led 1 Amarillo
-	Chip_SCU_PinMux(2, 10, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 0 , 1<<14 , 1);
-
-	//Led 2 Rojo
-	Chip_SCU_PinMux(2, 11, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<11 , 1);
-
-	//Led 3 Verde
-	Chip_SCU_PinMux(2, 12, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<12 , 1);
-
-}
-
-void led_verde_invierte(void)
-{
-	Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 1 , 12);
-}
-void led_on(void){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 2);
-
-}
-void led_off(void){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 2);
-
-}
-//}
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -137,7 +114,6 @@ void led_off(void){
  * \remarks This function never returns. Return value is only to avoid compiler
  *          warnings or errors.
  */
-
 
 
 

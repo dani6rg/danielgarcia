@@ -58,8 +58,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "leds_daniel.h"       /* <= own header */
-
+#include "teclas.h"       /* <= own header */
 
 
 #ifndef CPU
@@ -74,49 +73,6 @@
 
 /*==================[macros and definitions]=================================*/
 
-void inicia_led(void)
-{
-	//Led R
-	Chip_SCU_PinMux(2, 0, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1 , 1);
-
-	//Led G
-	Chip_SCU_PinMux(2, 1, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<1 , 1);
-
-	//Led B
-	Chip_SCU_PinMux(2, 2, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<2 , 1);
-
-	//Led 1 Amarillo
-	Chip_SCU_PinMux(2, 10, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 0 , 1<<14 , 1);
-
-	//Led 2 Rojo
-	Chip_SCU_PinMux(2, 11, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<11 , 1);
-
-	//Led 3 Verde
-	Chip_SCU_PinMux(2, 12, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<12 , 1);
-
-}
-
-void led_verde_invierte(void)
-{
-	Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 1 , 12);
-}
-void led_on(void){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 2);
-
-}
-void led_off(void){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 2);
-
-}
-//}
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -139,6 +95,55 @@ void led_off(void){
  */
 
 
+int LeerTecla(int tecla){
+	int presionada;
+	int puerto;
+	int pin;
+	//lee una tecla
+	switch (tecla){
+	case 1:
+		puerto=0; pin=4; break;
+	case 2:
+		puerto=0; pin=8; break;
+	case 3:
+		puerto=0; pin=9; break;
+	case 4:
+		puerto=1; pin=9; break;
+	}
+
+	presionada=	!Chip_GPIO_GetPinState(LPC_GPIO_PORT, puerto,pin);
+	return presionada;
+};
+
+int EscanearTeclado(void){
+	//Recorre el teclado una vez leyendo si está pulsada alguna tecla.
+	int tecla =1;
+	int tecla_presionada=0;
+
+	while (tecla <= 4){
+		if (LeerTecla(tecla)) {
+			tecla_presionada= tecla;}
+		tecla=tecla +1;
+
+	}
+	return tecla_presionada;
+
+};
+
+void InicializarTeclas(void)
+{
+   /* perform the needed initialization here */
+	Chip_GPIO_Init(LPC_GPIO_PORT);
+
+	Chip_SCU_PinMux(1,0,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* remapea P1_0 en GPIO 0[4], SW1 */
+	Chip_SCU_PinMux(1,1,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* remapea P1_1 en GPIO 0[8], SW2 */
+	Chip_SCU_PinMux(1,2,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* remapea P1_2 en GPIO 0[9], SW3 */
+	Chip_SCU_PinMux(1,6,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* remapea P1_6 en GPIO 1[9], SW4 */
+	/*Además, habilita para cada pin el buffer de entrada y deshabilita el filtro de glitch*/
+
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 0, (1<<4)|(1<<8)|(1<<9),0);
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,  (1<<9),0);
+}
 
 
 

@@ -31,9 +31,9 @@
  *
  */
 
-/** \brief Blinking Bare Metal example source file
+/** \brief Blinking Bare Metal driver led
  **
- ** This is a mini example of the CIAA Firmware.
+ **
  **
  **/
 
@@ -42,7 +42,7 @@
 
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Baremetal Bare Metal example source file
+/** \addtogroup Baremetal Bare Metal LED Driver
  ** @{ */
 
 /*
@@ -58,9 +58,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "leds_daniel.h"       /* <= own header */
-
-
 
 #ifndef CPU
 #error CPU shall be defined
@@ -70,53 +67,41 @@
 #elif (mk60fx512vlq15 == CPU)
 #else
 #endif
+#include "uart.h"
+void UART_Init() {
+	Chip_SCU_PinMux(7,1,0,FUNC6); /* P2 3: UART3 TXD */
+	Chip_SCU_PinMux(7,2,0,FUNC6); /* P2 4: UART3 RXD */
+	Chip_UART_Init(LPC_USART2);
+	Chip_UART_SetBaud(LPC_USART2,9600);
+	Chip_UART_SetupFIFOS(LPC_USART2,UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
+	Chip_UART_TXEnable(LPC_USART2);
+}
+unsigned char UART_Read() {
+	unsigned char data;
+	if((Chip_UART_ReadLineStatus(LPC_USART2) & 1<<0)==1)
+		data = Chip_UART_ReadByte(LPC_USART2);
+	else
+		data = 0;
+}
+void UART_Send(char dato) {
+	while((Chip_UART_ReadLineStatus(LPC_USART2) & 1<<5)==0);
+	Chip_UART_SendByte(LPC_USART2,dato );
+}
+// ------------------------------------------------------------------------
+// Funcion UART_Send_String
+// envia una cadena de terminación nula por la UART
+// ------------------------------------------------------------------------
+
+void UART_Send_String(unsigned char *cadena) {
+	int caracter=0;
+	while(cadena[caracter]!=0) {
+		UART_Send(cadena[caracter++]);
+	}
+}
 
 
 /*==================[macros and definitions]=================================*/
 
-void inicia_led(void)
-{
-	//Led R
-	Chip_SCU_PinMux(2, 0, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1 , 1);
-
-	//Led G
-	Chip_SCU_PinMux(2, 1, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<1 , 1);
-
-	//Led B
-	Chip_SCU_PinMux(2, 2, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<2 , 1);
-
-	//Led 1 Amarillo
-	Chip_SCU_PinMux(2, 10, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 0 , 1<<14 , 1);
-
-	//Led 2 Rojo
-	Chip_SCU_PinMux(2, 11, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<11 , 1);
-
-	//Led 3 Verde
-	Chip_SCU_PinMux(2, 12, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<12 , 1);
-
-}
-
-void led_verde_invierte(void)
-{
-	Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 1 , 12);
-}
-void led_on(void){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 2);
-
-}
-void led_off(void){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 2);
-
-}
-//}
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -137,7 +122,6 @@ void led_off(void){
  * \remarks This function never returns. Return value is only to avoid compiler
  *          warnings or errors.
  */
-
 
 
 

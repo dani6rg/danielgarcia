@@ -58,7 +58,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "leds_daniel.h"       /* <= own header */
+#include "rti_daniel.h"       /* <= own header */
 
 
 
@@ -74,49 +74,17 @@
 
 /*==================[macros and definitions]=================================*/
 
-void inicia_led(void)
+void timer_interrupcion(uint32_t tiempo)
 {
-	//Led R
-	Chip_SCU_PinMux(2, 0, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1 , 1);
-
-	//Led G
-	Chip_SCU_PinMux(2, 1, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<1 , 1);
-
-	//Led B
-	Chip_SCU_PinMux(2, 2, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<2 , 1);
-
-	//Led 1 Amarillo
-	Chip_SCU_PinMux(2, 10, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 0 , 1<<14 , 1);
-
-	//Led 2 Rojo
-	Chip_SCU_PinMux(2, 11, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<11 , 1);
-
-	//Led 3 Verde
-	Chip_SCU_PinMux(2, 12, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<12 , 1);
+	NVIC_EnableIRQ(11);//RITIMER_IRQn
+	Chip_RIT_Init(LPC_RITIMER);
+	Chip_RIT_SetTimerInterval(LPC_RITIMER , tiempo );
 
 }
-
-void led_verde_invierte(void)
-{
-	Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 1 , 12);
+void Borra_interrupcion_timer() {
+	Chip_RIT_ClearInt(LPC_RITIMER);
 }
-void led_on(void){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 2);
 
-}
-void led_off(void){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 2);
-
-}
-//}
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/

@@ -31,18 +31,19 @@
  *
  */
 
-/** \brief Blinking Bare Metal example source file
+#ifndef UART_H
+#define UART_H
+/** \brief Bare Metal example header file
  **
- ** This is a mini example of the CIAA Firmware.
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Baremetal Bare Metal example source file
+/** \addtogroup Baremetal Bare Metal example header file
  ** @{ */
 
 /*
@@ -56,94 +57,26 @@
  * -----------------------------------------------------------
  * yyyymmdd v0.0.1 initials initial version
  */
-
 /*==================[inclusions]=============================================*/
-#include "leds_daniel.h"       /* <= own header */
+#include "stdint.h"
 
+/*==================[macros]=================================================*/
+#define lpc4337            1
+#define mk60fx512vlq15     2
 
+/*==================[typedef]================================================*/
 
-#ifndef CPU
-#error CPU shall be defined
-#endif
-#if (lpc4337 == CPU)
-#include "chip.h"
-#elif (mk60fx512vlq15 == CPU)
-#else
-#endif
+/*==================[external data declaration]==============================*/
+void UART_Init();
+unsigned char UART_Read();
+void UART_Send(char dato);
+void UART_Send_String(unsigned char *cadena);
 
-
-/*==================[macros and definitions]=================================*/
-
-void inicia_led(void)
-{
-	//Led R
-	Chip_SCU_PinMux(2, 0, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1 , 1);
-
-	//Led G
-	Chip_SCU_PinMux(2, 1, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<1 , 1);
-
-	//Led B
-	Chip_SCU_PinMux(2, 2, MD_PLN, FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5 , 1<<2 , 1);
-
-	//Led 1 Amarillo
-	Chip_SCU_PinMux(2, 10, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 0 , 1<<14 , 1);
-
-	//Led 2 Rojo
-	Chip_SCU_PinMux(2, 11, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<11 , 1);
-
-	//Led 3 Verde
-	Chip_SCU_PinMux(2, 12, MD_PLN, FUNC0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1 , 1<<12 , 1);
-
-}
-
-void led_verde_invierte(void)
-{
-	Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 1 , 12);
-}
-void led_on(void){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5 , 2);
-
-}
-void led_off(void){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 1);
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5 , 2);
-
-}
-//}
-/*==================[internal data declaration]==============================*/
-
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
-
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-/** \brief Main function
- *
- * This is the main entry point of the software.
- *
- * \returns 0
- *
- * \remarks This function never returns. Return value is only to avoid compiler
- *          warnings or errors.
- */
-
-
-
-
+/*==================[external functions declaration]=========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef MI_NUEVO_PROYECTO_H */
 
