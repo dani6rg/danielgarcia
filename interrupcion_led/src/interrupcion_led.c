@@ -17,11 +17,12 @@ int main(void)
 }
 
 void Timer_IRQ(void) {
-	int led = 0;
-	int direccion = 1;
+	//el dato debe ser ""SIGNADO"" y "ESTATICO" para que el contenido de (led y direccion) no cambien
+	static int8_t led = 0;
+	static int8_t direccion = 1;
 
-	//if(EscanearTeclado()==1) direccion = 1;
-	//if(EscanearTeclado()==2) direccion = -1;
+	if(EscanearTeclado()==1) direccion = 1;
+	if(EscanearTeclado()==2) direccion = -1;
 
 	Led_bajo(secuencia[led]);
 

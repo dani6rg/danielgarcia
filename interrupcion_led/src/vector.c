@@ -25,7 +25,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "interrupcion_led.h"
-//#include "timer.h"
+//#include "rti_daniel.h"
 
 /*==================[macros and definitions]=================================*/
 
